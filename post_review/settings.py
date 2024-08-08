@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_celery_beat",
     "accounts.apps.AccountsConfig",
+    "post.apps.PostConfig",
+    "review.apps.ReviewConfig",
 ]
 
 
