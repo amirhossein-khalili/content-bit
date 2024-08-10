@@ -1,4 +1,4 @@
-from django.db.models import Avg
+from django.db.models import Avg, OuterRef, Subquery
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -17,11 +17,19 @@ class ArticleListView(APIView):
     serializer_class = ArticleSerializer
 
     def get(self, request):
+        user = request.user
 
-        # articles = Article.objects.all()
-
-        articles = Article.objects.annotate(avg_rating=Avg("reviews__rating"))
-
+        # Annotate each article with the average rating
+        articles = Article.objects.annotate(
+            avg_rating=Avg("reviews__rating"),
+            user_rating=Subquery(
+                Review.objects.filter(
+                    content_type=OuterRef("reviews__content_type"),
+                    object_id=OuterRef("id"),
+                    user=user,
+                ).values("rating")[:1]
+            ),
+        )
         serializer = self.serializer_class(articles, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
