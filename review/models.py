@@ -24,4 +24,4 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return f"Review of {self.object_id} from {self.content_type} by {self.user_id} : {self.rating}"
+        return f"Review of {self.content_type} by user : {self.user_id}"
