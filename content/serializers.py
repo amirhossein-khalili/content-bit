@@ -1,5 +1,8 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from rest_framework import serializers
+
+from review.models import Review
 
 from .models import Article
 
@@ -23,3 +26,25 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def get_avg_rating(self, obj):
         return obj.avg_rating if obj.avg_rating is not None else 0
+
+
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(min_value=0, max_value=5)
+
+    class Meta:
+        model = Review
+        fields = ["rating"]
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        article = self.context["article"]
+        content_type = ContentType.objects.get_for_model(article)
+
+        # Check if the review already exists
+        review, created = Review.objects.update_or_create(
+            user=user,
+            content_type=content_type,
+            object_id=article.id,
+            defaults={"rating": validated_data["rating"]},
+        )
+        return review

@@ -33,3 +33,26 @@ class ArticleListView(APIView):
         serializer = self.serializer_class(articles, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AddArticleRatingView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReviewCreateSerializer
+
+    def post(self, request, article_id):
+        try:
+            article = Article.objects.get(pk=article_id)
+        except Article.DoesNotExist:
+            return Response(
+                {"error": "Article not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.serializer_class(
+            data=request.data,
+            context={"request": request, "article": article},
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
