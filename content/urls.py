@@ -7,6 +7,6 @@ urlpatterns = [
     path("list/", views.ArticleListView.as_view()),
     path(
         "<int:article_id>/rate/",
-        AddArticleRatingView.as_view(),
+        views.AddArticleRatingView.as_view(),
     ),
 ]
