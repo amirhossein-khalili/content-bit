@@ -33,9 +33,9 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
-ROOT_URLCONF = "post_review.urls"
+ROOT_URLCONF = "contentcritic.urls"
 
-WSGI_APPLICATION = "post_review.wsgi.application"
+WSGI_APPLICATION = "contentcritic.wsgi.application"
 
 
 # =============================================================================
@@ -157,7 +157,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": "100/day", "user": "1000/day"},
-    # "DEFAULT_METADATA_CLASS": "post_review.metadata.CustomMetadata",
+    # "DEFAULT_METADATA_CLASS": "contentcritic.metadata.CustomMetadata",
 }
 
 

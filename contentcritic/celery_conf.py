@@ -3,9 +3,9 @@ from datetime import timedelta
 
 from celery import Celery
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "post_review.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "contentcritic.settings")
 
-celery_app = Celery("post_review")
+celery_app = Celery("contentcritic")
 celery_app.autodiscover_tasks()
 
 celery_app.conf.broker_url = "amqp://"
