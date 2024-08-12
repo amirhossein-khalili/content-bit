@@ -9,7 +9,7 @@ from .models import Article
 
 class ArticleSerializer(serializers.ModelSerializer):
     avg_rating = serializers.FloatField(read_only=True)
-    user_rating = serializers.IntegerField(read_only=True, allow_null=True)
+    # user_rating = serializers.IntegerField(read_only=True, allow_null=True)
 
     class Meta:
         model = Article
@@ -17,11 +17,11 @@ class ArticleSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "content",
-            "slug",
+            # "slug",
             "published_date",
             "updated_date",
             "avg_rating",
-            "user_rating",
+            # "user_rating",
         ]
 
     def get_avg_rating(self, obj):
@@ -49,12 +49,10 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         article = self.context["article"]
-        content_type = ContentType.objects.get_for_model(article)
 
         review, created = Review.objects.update_or_create(
             user=user,
-            content_type=content_type,
-            object_id=article.id,
+            article=article,
             defaults={"rating": validated_data["rating"]},
         )
 
