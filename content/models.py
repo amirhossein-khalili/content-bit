@@ -15,7 +15,7 @@ class Article(models.Model):
     reviews = GenericRelation(Review, related_query_name="article")
 
     def __str__(self):
-        return self.title
+        return self.slug
 
     def save(self, *args, **kwargs):
         if not self.slug:
