@@ -12,17 +12,5 @@ class Article(models.Model):
     published_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
 
-    reviews = GenericRelation(Review, related_query_name="article")
-
     def __str__(self):
         return self.slug
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)[:5]
-            counter = 1
-            original_slug = self.slug
-            while Article.objects.filter(slug=self.slug).exists():
-                self.slug = f"{original_slug}-{counter}"
-                counter += 1
-        super().save(*args, **kwargs)
