@@ -1,4 +1,3 @@
-Here’s a suggested README file for your project:
 
 ---
 
@@ -61,5 +60,3 @@ This project enables users to register via email in two steps, with the ability 
 - The project is designed to handle large volumes of articles efficiently using pagination.
 
 ---
-
-This README provides an overview of your project, including setup instructions and key features. Make sure to replace "Project Name" with the actual name of your project.
