@@ -29,7 +29,18 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
-    rating = serializers.IntegerField(min_value=0, max_value=5)
+    rating = serializers.IntegerField(
+        min_value=0,
+        max_value=5,
+        write_only=True,
+        error_messages={
+            "required": "ارسال مقدار امتیاز اجباری هست",
+            "blank": "ارسال مقدار امتیاز اجباری هست",
+            "min_value": "حداقل مقدار امتیاز میتواند عدد ۰ باشد ",
+            "max_value": "حداکثر مقدار امتیاز میتواند عدد ۵ باشد ",
+            "invalid": "مقدار امتیاز باید یک عدد باشد ",
+        },
+    )
 
     class Meta:
         model = Review
@@ -40,11 +51,11 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         article = self.context["article"]
         content_type = ContentType.objects.get_for_model(article)
 
-        # Check if the review already exists
         review, created = Review.objects.update_or_create(
             user=user,
             content_type=content_type,
             object_id=article.id,
             defaults={"rating": validated_data["rating"]},
         )
+
         return review
