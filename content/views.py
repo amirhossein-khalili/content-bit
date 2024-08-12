@@ -16,17 +16,11 @@ from .serializers import ArticleSerializer, ReviewCreateSerializer
 
 class ArticleListView(APIView):
     """
-
-    This part returns the content of the article along with
-
-    the score given by the user to this article and
-
-    also the average score given to the article.
-
-    this view has pagination .
-
-    page number must send in query parameters
-
+    This view returns the content of the articles along with
+    the score given by the user to each article and
+    the average score given to the articles.
+    This view also includes pagination.
+    The page number must be sent in query parameters.
     """
 
     permission_classes = [IsAuthenticated]
@@ -38,11 +32,9 @@ class ArticleListView(APIView):
         articles = Article.objects.annotate(
             avg_rating=Avg("reviews__rating"),
             user_rating=Subquery(
-                Review.objects.filter(
-                    content_type=OuterRef("reviews__content_type"),
-                    object_id=OuterRef("id"),
-                    user=user,
-                ).values("rating")[:1]
+                Review.objects.filter(article=OuterRef("pk"), user=user).values(
+                    "rating"
+                )[:1]
             ),
         )
 
@@ -60,21 +52,18 @@ class ArticleListView(APIView):
 
 class ReviewArticleCreateUpdateView(APIView):
     """
-
     This part allows users to give a score to an article.
-
     if user had been scored before it will be update .
-
     """
 
     permission_classes = [IsAuthenticated]
     serializer_class = ReviewCreateSerializer
 
-    def post(self, request, article_slug):
+    def post(self, request, pk):
 
         # check article exists with slug
         try:
-            article = Article.objects.get(slug=article_slug)
+            article = Article.objects.get(pk=pk)
         except Article.DoesNotExist:
             raise Http404("مقاله مد نظر شما وجود ندارد . ")
 
