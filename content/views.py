@@ -1,5 +1,6 @@
 from django.db.models import Avg, OuterRef, Subquery
-from django.shortcuts import render
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, status
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -12,29 +13,6 @@ from review.models import Review
 from .models import Article
 from .serializers import ArticleSerializer, ReviewCreateSerializer
 
-# class ArticleListView(APIView):
-
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = ArticleSerializer
-
-#     def get(self, request):
-#         user = request.user
-
-#         # Annotate each article with the average rating
-#         articles = Article.objects.annotate(
-#             avg_rating=Avg("reviews__rating"),
-#             user_rating=Subquery(
-#                 Review.objects.filter(
-#                     content_type=OuterRef("reviews__content_type"),
-#                     object_id=OuterRef("id"),
-#                     user=user,
-#                 ).values("rating")[:1]
-#             ),
-#         )
-#         serializer = self.serializer_class(articles, many=True)
-
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class ArticleListView(APIView):
 
@@ -44,7 +22,6 @@ class ArticleListView(APIView):
     def get(self, request):
         user = request.user
 
-        # Annotate each article with the average rating
         articles = Article.objects.annotate(
             avg_rating=Avg("reviews__rating"),
             user_rating=Subquery(
@@ -68,17 +45,16 @@ class ArticleListView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-class AddArticleRatingView(APIView):
+class ReviewArticleCreateUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ReviewCreateSerializer
 
-    def post(self, request, article_id):
+    def post(self, request, article_slug):
+
         try:
-            article = Article.objects.get(pk=article_id)
+            article = Article.objects.get(slug=article_slug)
         except Article.DoesNotExist:
-            return Response(
-                {"error": "Article not found."}, status=status.HTTP_404_NOT_FOUND
-            )
+            raise Http404("مقاله مد نظر شما وجود ندارد . ")
 
         serializer = self.serializer_class(
             data=request.data,
@@ -87,5 +63,9 @@ class AddArticleRatingView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "امتیاز شما با موفقیت ثبت شد ."},
+                status=status.HTTP_200_OK,
+            )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
