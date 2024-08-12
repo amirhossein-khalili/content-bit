@@ -6,7 +6,7 @@ app_name = "content"
 urlpatterns = [
     path("list/", views.ArticleListView.as_view()),
     path(
-        "<int:article_id>/rate/",
-        views.AddArticleRatingView.as_view(),
+        "<slug:article_slug>/review/",
+        views.ReviewArticleCreateUpdateView.as_view(),
     ),
 ]
