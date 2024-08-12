@@ -23,6 +23,10 @@ class ArticleListView(APIView):
 
     also the average score given to the article.
 
+    this view has pagination .
+
+    page number must send in query parameters
+
     """
 
     permission_classes = [IsAuthenticated]
@@ -44,7 +48,7 @@ class ArticleListView(APIView):
 
         # Set up pagination
         paginator = PageNumberPagination()
-        paginator.page_size = 10  # Number of articles per page
+        paginator.page_size = 10
         paginated_articles = paginator.paginate_queryset(articles, request)
 
         # Serialize the data
@@ -68,21 +72,23 @@ class ReviewArticleCreateUpdateView(APIView):
 
     def post(self, request, article_slug):
 
+        # check article exists with slug
         try:
             article = Article.objects.get(slug=article_slug)
         except Article.DoesNotExist:
             raise Http404("مقاله مد نظر شما وجود ندارد . ")
 
+        # serialize data input of user
         serializer = self.serializer_class(
             data=request.data,
             context={"request": request, "article": article},
         )
 
+        # check validation and error messages .
         if serializer.is_valid():
             serializer.save()
             return Response(
                 {"message": "امتیاز شما با موفقیت ثبت شد ."},
                 status=status.HTTP_200_OK,
             )
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
