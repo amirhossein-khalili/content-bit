@@ -15,6 +15,15 @@ from .serializers import ArticleSerializer, ReviewCreateSerializer
 
 
 class ArticleListView(APIView):
+    """
+
+    This part returns the content of the article along with
+
+    the score given by the user to this article and
+
+    also the average score given to the article.
+
+    """
 
     permission_classes = [IsAuthenticated]
     serializer_class = ArticleSerializer
@@ -46,6 +55,14 @@ class ArticleListView(APIView):
 
 
 class ReviewArticleCreateUpdateView(APIView):
+    """
+
+    This part allows users to give a score to an article.
+
+    if user had been scored before it will be update .
+
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = ReviewCreateSerializer
 
