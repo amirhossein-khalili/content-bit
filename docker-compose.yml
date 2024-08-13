@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - '8000:8000'
+    image: contentcritic
+    container_name: contentcritic_container
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DATABASE_NAME=contentcritic_db
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    container_name: postgres_container
+    environment:
+      POSTGRES_DB: contentcritic_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
