@@ -19,10 +19,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             "updated_date",
             "avg_rating",
             "user_rating",
+            "review_count",
         ]
-
-    def get_avg_rating(self, obj):
-        return obj.avg_rating if obj.avg_rating is not None else 0
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
