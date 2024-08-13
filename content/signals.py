@@ -24,10 +24,18 @@ def handle_review_save(sender, instance, created, **kwargs):
         article.save()
 
     else:
-        
-        print(
-            f"Review updated: ID={review_id}, User={user}, Article={article}, Rating={rating}"
-        )
+
+        # Retrieve the previous rating
+        previous_rating = Review.objects.get(pk=instance.pk).rating
+
+        # Calculate the updated average after changing the rating
+        new_review_avg = (
+            (review_count * article.avg_rating) - previous_rating + new_rating
+        ) / review_count
+
+        # Update the article's average rating
+        article.avg_rating = new_review_avg
+        article.save()
 
 
 @receiver(post_delete, sender=Review)
