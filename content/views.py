@@ -35,34 +35,43 @@ class ArticleListView(ListAPIView):
         )
 
 
-class ReviewCreateUpdateView(APIView):
+class ArticleMixin:
+    """Mixin to retrieve an article instance based on pk"""
+
+    def get_article(self, pk):
+        try:
+            return Article.objects.get(pk=pk)
+        except Article.DoesNotExist:
+            raise Http404("مقاله مد نظر شما وجود ندارد .")
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["article"] = self.article
+        return context
+
+
+class ReviewCreateUpdateView(ArticleMixin, generics.CreateAPIView):
     """
-    This part allows users to give a score to an article.
-    if user had been scored before it will be update .
+    Allows users to give a score to an article.
+    If the user has already scored, it will be updated.
     """
 
     permission_classes = [IsAuthenticated]
     serializer_class = ReviewCreateSerializer
 
-    def post(self, request, pk):
+    def post(self, request, pk, *args, **kwargs):
+        # Retrieve the article using the mixin
+        self.article = self.get_article(pk)
 
-        # check article exists with slug
-        try:
-            article = Article.objects.get(pk=pk)
-        except Article.DoesNotExist:
-            raise Http404("مقاله مد نظر شما وجود ندارد . ")
+        # Use the inherited method to handle serialization and saving
+        return super().post(request, *args, **kwargs)
 
-        # serialize data input of user
-        serializer = self.serializer_class(
-            data=request.data,
-            context={"request": request, "article": article},
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user, article=self.article)
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return Response(
+            {"message": "امتیاز شما با موفقیت ثبت شد"},
+            status=status.HTTP_200_OK,
         )
-
-        # check validation and error messages .
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "امتیاز شما با موفقیت ثبت شد ."},
-                status=status.HTTP_200_OK,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
