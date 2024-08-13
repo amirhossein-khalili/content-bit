@@ -1,6 +1,5 @@
 from django.db.models import Avg, OuterRef, Subquery
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
