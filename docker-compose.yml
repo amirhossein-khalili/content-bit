@@ -16,8 +16,11 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:13
@@ -29,5 +32,14 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:6
+    container_name: redis_container
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+
 volumes:
   pgdata:
+  redisdata:
