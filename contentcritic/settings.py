@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "accounts.apps.AccountsConfig",
     "content.apps.ContentConfig",
-    "review.apps.ReviewConfig",
 ]
 
 
