@@ -28,7 +28,6 @@ class ArticleListView(APIView):
         user = request.user
 
         articles = Article.objects.annotate(
-            avg_rating=Avg("reviews__rating"),
             user_rating=Subquery(
                 Review.objects.filter(article=OuterRef("pk"), user=user).values(
                     "rating"
@@ -48,7 +47,7 @@ class ArticleListView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-class ReviewArticleCreateUpdateView(APIView):
+class ReviewCreateUpdateView(APIView):
     """
     This part allows users to give a score to an article.
     if user had been scored before it will be update .
