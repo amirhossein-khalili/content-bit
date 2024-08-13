@@ -1,7 +1,7 @@
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
-from .models import Article, Review
+from .models import Review
 
 
 @receiver(post_save, sender=Review)
@@ -12,9 +12,8 @@ def handle_review_save(sender, instance, created, **kwargs):
     review_count = article.review_count
 
     if created:
-
-        # calculate and update average of rating of this article
-        new_review_avg = ((review_count * article.avg_rating) + (new_rating)) / (
+        # Calculate and update the average rating of this article
+        new_review_avg = ((review_count * article.avg_rating) + new_rating) / (
             review_count + 1
         )
         article.avg_rating = new_review_avg
@@ -23,7 +22,16 @@ def handle_review_save(sender, instance, created, **kwargs):
         article.review_count += 1
         article.save()
 
-    else:
+
+@receiver(pre_save, sender=Review)
+def handle_review_update(sender, instance, **kwargs):
+
+    article = instance.article
+    new_rating = instance.rating
+    review_count = article.review_count
+
+    # Check if this is an update (i.e., the review already exists)
+    if instance.pk:
 
         # Retrieve the previous rating
         previous_rating = Review.objects.get(pk=instance.pk).rating
@@ -39,8 +47,17 @@ def handle_review_save(sender, instance, created, **kwargs):
 
 
 @receiver(post_delete, sender=Review)
-def handle_review_save(sender, instance, **kwargs):
+def handle_review_delete(sender, instance, **kwargs):
 
     article = instance.article
+    rating = instance.rating
+
+    # calculating new average of rating
+    new_review_avg = (
+        (article.review_count * article.avg_rating) - rating
+    ) / article.review_count
+    article.avg_rating = new_review_avg
+
+    # manage and save rating count and average rating
     article.review_count -= 1
     article.save()
