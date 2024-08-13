@@ -12,39 +12,27 @@ from .models import Article, Review
 from .serializers import ArticleSerializer, ReviewCreateSerializer
 
 
-class ArticleListView(APIView):
+class ArticleListView(ListAPIView):
     """
-    This view returns the content of the articles along with
-    the score given by the user to each article and
-    the average score given to the articles.
-    This view also includes pagination.
-    The page number must be sent in query parameters.
+    Returns a paginated list of articles with the user's rating for each article
+    and the average rating for all articles. The page number must be sent in query parameters.
     """
 
     permission_classes = [IsAuthenticated]
     serializer_class = ArticleSerializer
+    pagination_class = PageNumberPagination
 
-    def get(self, request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
+        # Annotate queryset with user-specific rating
 
-        articles = Article.objects.annotate(
+        return Article.objects.annotate(
             user_rating=Subquery(
                 Review.objects.filter(article=OuterRef("pk"), user=user).values(
                     "rating"
                 )[:1]
             ),
         )
-
-        # Set up pagination
-        paginator = PageNumberPagination()
-        paginator.page_size = 10
-        paginated_articles = paginator.paginate_queryset(articles, request)
-
-        # Serialize the data
-        serializer = self.serializer_class(paginated_articles, many=True)
-
-        # Return paginated response
-        return paginator.get_paginated_response(serializer.data)
 
 
 class ReviewCreateUpdateView(APIView):
