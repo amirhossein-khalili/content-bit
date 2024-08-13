@@ -52,6 +52,9 @@ class Article(models.Model):
     published_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
 
+    review_count = models.PositiveIntegerField(default=0)
+    avg_rating = models.FloatField(default=0)
+
     def __str__(self):
         return self.title
 
