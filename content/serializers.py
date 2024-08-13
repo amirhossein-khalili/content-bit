@@ -2,9 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from rest_framework import serializers
 
-from review.models import Review
-
-from .models import Article
+from .models import Article, Review
 
 
 class ArticleSerializer(serializers.ModelSerializer):
