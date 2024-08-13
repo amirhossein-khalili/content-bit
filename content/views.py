@@ -1,8 +1,8 @@
 from django.db.models import Avg, OuterRef, Subquery
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from rest_framework import generics, status
-from rest_framework.generics import ListAPIView
+from rest_framework import status
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -50,7 +50,7 @@ class ArticleMixin:
         return context
 
 
-class ReviewCreateUpdateView(ArticleMixin, generics.CreateAPIView):
+class ReviewCreateUpdateView(ArticleMixin, CreateAPIView):
     """
     Allows users to give a score to an article.
     If the user has already scored, it will be updated.
